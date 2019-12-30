@@ -9,6 +9,22 @@
 # Aliases
 	alias v="vim -p"
 	mkdir -p /tmp/log
+
+  # bash script for git checkout (gcb)
+  gcb() {
+    result=$(git branch -a --color=always | grep -v '/HEAD\s' | sort |
+      fzf --height 50% --border --ansi --tac --preview-window right:70% \
+        --preview 'git show -s $1' |
+      sed 's/^..//' | cut -d' ' -f1)
+
+    if [[ $result != "" ]]; then
+      if [[ $result == remotes/* ]]; then
+        git checkout --track $(echo $result | sed 's#remotes/##')
+      else
+        git checkout "$result"
+      fi
+    fi
+  }
 	
 	# This is currently causing problems (fails when you run it anywhere that isn't a git project's root directory)
 	# alias vs="v `git status --porcelain | sed -ne 's/^ M //p'`"
@@ -83,4 +99,5 @@ if [[ "${terminfo[kcud1]}" != "" ]]; then
 fi
 
 source ~/dotfiles/zsh/prompt.sh
+eval "$(rbenv init -)"
 export PATH=$PATH:$HOME/dotfiles/utils
